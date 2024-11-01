@@ -1,10 +1,9 @@
 package helpers
 
 import (
-	"os"
-
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
+	"os"
 )
 
 var refreshTokenSecretKey = os.Getenv("REFRESH_TOKEN_SECRET_KEY")
@@ -19,14 +18,14 @@ func HashPassword(password string) (string, error) {
 	return string(bytes), nil
 }
 
-
-func CheckPassword(hashedPassword, password string) error{
+func CheckPassword(hashedPassword, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
 
-func GenerateAccessToken(userID string, tokenVersion int) (string, error){
+func GenerateAccessToken(userID string, role string, tokenVersion int) (string, error) {
 	claims := jwt.MapClaims{
-		"userID": userID,
+		"userID":       userID,
+		"role":         role,
 		"tokenVersion": tokenVersion,
 	}
 
@@ -34,13 +33,13 @@ func GenerateAccessToken(userID string, tokenVersion int) (string, error){
 	return token.SignedString([]byte(accessTokenSecretKey))
 }
 
-func GenerateRefreshToken(userID string, tokenVersion int) (string, error){
+func GenerateRefreshToken(userID string, role string, tokenVersion int) (string, error) {
 	claims := jwt.MapClaims{
-		"userID": userID,
+		"userID":       userID,
+		"role":         role,
 		"tokenVersion": tokenVersion,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(refreshTokenSecretKey))
 }
-
