@@ -87,5 +87,33 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 
 func LoginUser(w http.ResponseWriter, r *http.Request){
+	var req types.LoginRequest
+	var validate *validator.Validate
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request payloads", http.StatusBadRequest)
+		return
+	}
+
+	err := validate.Struct(req)
+	if err != nil{
+		for _, err := range err.(validator.ValidationErrors){
+			fmt.Fprintf(w, "Validation failed for field %s: %s\n", err.Field(), err.Tag())
+		}
+		return
+	}
+
+	var user models.User
+
+	if err := database.DB.Where("email=?", req.Email).First(&user).Error; err == nil{
+		http.Error(w, "User not found", http.StatusUnauthorized)
+		return 
+	}
+
+	if err := helpers.CheckPassword(req.Password, user.Password); err != nil{
+		http.Error(w, "Incorrect password", http.StatusUnauthorized)
+		return 
+	}
+
 	
 }
