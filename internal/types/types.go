@@ -1,19 +1,18 @@
 package types
 
-
 type RegisterRequest struct {
-	FirstName string `json:"firstName"`
-	LastName string `json:"lastName"`
-	Email string `json:"email"`
-	Password string `json:"password"`
+	FirstName string `json:"firstName" validate:"required,min=3,max=80"`
+	LastName  string `json:"lastName" validate:"required,min=3,max=80"`
+	Email     string `json:"email" validate:"required,email"`
+	Password  string `json:"password" validate:"required,strongpassword"`
 }
 
 type LoginRequest struct {
-	Email string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,strongpassword"`
 }
 
 type TokenResponse struct {
-	AccessToken string `json:"access_token"`
+	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }
