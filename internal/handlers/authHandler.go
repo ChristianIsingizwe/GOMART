@@ -115,5 +115,21 @@ func LoginUser(w http.ResponseWriter, r *http.Request){
 		return 
 	}
 
-	
+	accessToken, err := helpers.GenerateAccessToken(fmt.Sprint(user.ID), fmt.Sprint(user.Role), int(user.TokenVersion))
+	if err != nil {
+		http.Error(w, "Failed to create the token", http.StatusInternalServerError)
+		return 
+	}
+
+	refreshToken, err := helpers.GenerateRefreshToken(fmt.Sprint(user.ID), fmt.Sprint(user.Role), int(user.TokenVersion))
+	if err != nil {
+		http.Error(w, "Failed to create the refresh token", http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"email": user.Email,
+		"access_token": accessToken,
+		"refresh_token": refreshToken,
+	})
 }
