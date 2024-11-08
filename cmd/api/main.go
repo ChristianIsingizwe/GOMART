@@ -1,12 +1,15 @@
 package main
 
 import (
-	"github.com/ChristianIsingizwe/GOMART/internal/helpers"
-	"github.com/go-playground/validator/v10"
+	"log"
+
+	"github.com/ChristianIsingizwe/GOMART/internal/database"
 )
 
 func main() {
-	var validate *validator.Validate = validator.New()
-	validate.RegisterValidation("strongpassword", helpers.StrongPassword)
 
+	err := database.ConnectToDatabase()
+	if err != nil {
+		log.Fatalf("Could not connect to database.")
+	}
 }
