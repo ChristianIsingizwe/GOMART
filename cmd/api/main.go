@@ -22,13 +22,17 @@ func main() {
 	mux.HandleFunc("/login", handlers.LoginUser)
 	mux.HandleFunc("/register", handlers.RegisterUser)
 
+	port := os.Getenv("APP_PORT")
+	if port == "" {
+		port =":8080"
+	}
 
 	server := &http.Server{
-		Addr: os.Getenv("APP_PORT"),
+		Addr: port,
 		Handler: mux,
 	}
 
-	fmt.Println("Starting server on port: " + os.Getenv("APP_PORT"))
+	fmt.Println("Starting server on port: " + port)
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("Could not start the server: %s\n", err)
 	}
