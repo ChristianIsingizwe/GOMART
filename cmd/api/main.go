@@ -8,11 +8,17 @@ import (
 
 	"github.com/ChristianIsingizwe/GOMART/internal/database"
 	"github.com/ChristianIsingizwe/GOMART/internal/handlers"
+	"github.com/joho/godotenv"
 )
 
 func main() {
 
-	err := database.ConnectToDatabase()
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading environment variables: %v", err)
+	}
+
+	err = database.ConnectToDatabase()
 	if err != nil {
 		log.Fatalf("Could not connect to database.")
 	}
