@@ -23,7 +23,7 @@ func ConnectToDatabase() error {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	err = database.AutoMigrate(&models.User{}, &models.CartItem{}, &models.Order{}, &models.OrderItem{}, &models.Product{})
+	err = database.AutoMigrate(&models.User{}, &models.CartItem{}, &models.OrderItem{}, &models.Product{}, &models.Order{})
 	if err != nil {
 		log.Fatalf("Failed to migrate database schema: %v", err)
 	}

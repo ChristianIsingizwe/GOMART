@@ -26,7 +26,7 @@ type CartItem struct {
 	Quantity uint `gorm:"not null;check:quantity > 0"`
 
 	User User `gorm:"foreignKey:UserID"`
-	Product Product`gorm:"foreignKey:UserID"`
+	Product Product`gorm:"foreignKey:ProductID"`
 }
 
 type OrderItem struct {
@@ -61,5 +61,5 @@ type Product struct {
 
 	CartItems []CartItem `gorm:"foreignKey:ProductID;constraints:OnDelete:CASCADE"`
 	OrderItems []OrderItem `gorm:"foreignkey:ProductID;constraints:OnDelete:CASCADE"`
-	User User `gorm:"foreignKey:UserID;references:ID"`
+	User User `gorm:"foreignKey:UserID;references:ID;constraints:onDelete:CASCADE"`
 }
