@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/ChristianIsingizwe/GOMART/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -21,6 +23,12 @@ func ConnectToDatabase() error {
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
+
+	err = DB.AutoMigrate(&models.User{}, &models.CartItem{}, &models.Order{}, &models.OrderItem{}, &models.Product{})
+	if err != nil {
+		log.Fatalf("Failed to migrate database schema: %v", err)
+	}
+
 
 	DB= database
 	log.Println("Database connected successfully")
