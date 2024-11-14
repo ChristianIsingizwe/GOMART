@@ -11,7 +11,7 @@ type User struct {
 	LastName      string     `gorm:"not null"`
 	Email         string     `gorm:"unique;not null"`
 	Password      string     `gorm:"not null"`
-	Role          string     `gorm:"not null;default: customer"`
+	Role          string     `gorm:"not null;default:'customer'"`
 	TokenVersion  uint       `gorm:"not null; default: 1"`
 	ShoppingCarts []CartItem `gorm:"foreignKey:UserID"`
 	Orders        []Order    `gorm:"foreignKey:UserID"`
@@ -21,16 +21,19 @@ type User struct {
 type CartItem struct {
 	gorm.Model
 
-	UserID   User `gorm:"not null;index"`
-	ProductID Product`gorm:"not null;index"`
+	UserID   uint `gorm:"not null;index"`
+	ProductID uint `gorm:"not null;index"`
 	Quantity uint `gorm:"not null;check:quantity > 0"`
+
+	User User `gorm:"foreignKey:UserID"`
+	Product Product`gorm:"foreignKey:UserID"`
 }
 
 type OrderItem struct {
 	gorm.Model
 
 	OrderID   uint    `gorm:"not null;index"`
-	Price     float64 `gorm:"not null;check:quantity >= 0"`
+	Price     float64 `gorm:"not null;check:price >= 0"`
 	ProductID uint    `gorm:"not null;index"`
 	Quantity  uint    `gorm:"not null;check:quantity > 0"`
 
@@ -41,6 +44,7 @@ type OrderItem struct {
 type Order struct {
 	gorm.Model
 
+	UserID uint `gorm:"not null;index"`
 	Total      uint        `gorm:"not null;default: 0"`
 	OrderItems []OrderItem `gorm:"foreignKey:OrderID"`
 	User       User        `gorm:"foreignKey:UserID;constraints:OnDelete:CASCADE"`

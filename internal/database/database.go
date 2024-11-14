@@ -12,11 +12,10 @@ import (
 
 var DB *gorm.DB
 
-
 func ConnectToDatabase() error {
 	dsn := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbName=%s ",
-		os.Getenv("DB_HOST"),os.Getenv("DB_PORT"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"),
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"),
 	)
 
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -24,13 +23,12 @@ func ConnectToDatabase() error {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	err = DB.AutoMigrate(&models.User{}, &models.CartItem{}, &models.Order{}, &models.OrderItem{}, &models.Product{})
+	err = database.AutoMigrate(&models.User{}, &models.CartItem{}, &models.Order{}, &models.OrderItem{}, &models.Product{})
 	if err != nil {
 		log.Fatalf("Failed to migrate database schema: %v", err)
 	}
 
-
-	DB= database
+	DB = database
 	log.Println("Database connected successfully")
 	return nil
 }
