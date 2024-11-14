@@ -14,7 +14,9 @@ import (
 
 func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
-	var validate *validator.Validate
+	validate:= validator.New()
+
+	validate.RegisterValidation("strongpassword", helpers.StrongPassword)
 
 	var req types.RegisterRequest
 
