@@ -53,6 +53,7 @@ type Order struct {
 type Product struct {
 	gorm.Model
 
+	UserID uint `gorm:"not null;index"`
 	Name          string  `gorm:"not null;"`
 	Description   string  `gorm:"not null"`
 	Price         float64 `gorm:"not null;default: 0"`
@@ -60,4 +61,5 @@ type Product struct {
 
 	CartItems []CartItem `gorm:"foreignKey:ProductID;constraints:OnDelete:CASCADE"`
 	OrderItems []OrderItem `gorm:"foreignkey:ProductID;constraints:OnDelete:CASCADE"`
+	User User `gorm:"foreignKey:UserID;references:ID"`
 }
