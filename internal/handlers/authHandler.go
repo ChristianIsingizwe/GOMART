@@ -14,6 +14,10 @@ import (
 
 func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
+	if r.Method != http.MethodPost{
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+	}
+
 	validate:= validator.New()
 
 	validate.RegisterValidation("strongpassword", helpers.StrongPassword)
@@ -89,6 +93,12 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 
 func LoginUser(w http.ResponseWriter, r *http.Request){
+
+	if r.Method != http.MethodPost{
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+	}
+
+
 	var req types.LoginRequest
 	var validate *validator.Validate
 
