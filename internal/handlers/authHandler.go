@@ -10,17 +10,17 @@ import (
 	"github.com/ChristianIsingizwe/GOMART/internal/models"
 	"github.com/ChristianIsingizwe/GOMART/internal/types"
 	"github.com/go-playground/validator/v10"
+	"gorm.io/gorm"
 )
-
-
 
 func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method != http.MethodPost{
+	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
 	}
 
-	validate:= validator.New()
+	validate := validator.New()
 
 	validate.RegisterValidation("strongpassword", helpers.StrongPassword)
 
@@ -39,11 +39,18 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var existingUser models.User 
+	var existingUser models.User
 
 	if err := database.DB.Where("email=?", req.Email).First(&existingUser).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+
+		} else {
+			http.Error(w, "Failed to check if the user exists", http.StatusInternalServerError)
+			return
+		}
+	} else {
 		http.Error(w, "User already exists", http.StatusConflict)
-		return 
+		return
 	}
 
 	hashedPassword, err := helpers.HashPassword(req.Password)
@@ -81,6 +88,8 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+
 	w.WriteHeader(http.StatusCreated)
 
 	json.NewEncoder(w).Encode(map[string]interface{}{
@@ -92,16 +101,13 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func LoginUser(w http.ResponseWriter, r *http.Request) {
 
-
-func LoginUser(w http.ResponseWriter, r *http.Request){
-
-	if r.Method != http.MethodPost{
+	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 	}
 
-	validate:= validator.New()
-
+	validate := validator.New()
 
 	var req types.LoginRequest
 
@@ -111,8 +117,8 @@ func LoginUser(w http.ResponseWriter, r *http.Request){
 	}
 
 	err := validate.Struct(req)
-	if err != nil{
-		for _, err := range err.(validator.ValidationErrors){
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
 			fmt.Fprintf(w, "Validation failed for field %s: %s\n", err.Field(), err.Tag())
 		}
 		return
@@ -120,20 +126,20 @@ func LoginUser(w http.ResponseWriter, r *http.Request){
 
 	var user models.User
 
-	if err := database.DB.Where("email=?", req.Email).First(&user).Error; err == nil{
+	if err := database.DB.Where("email=?", req.Email).First(&user).Error; err == nil {
 		http.Error(w, "User not found", http.StatusUnauthorized)
-		return 
+		return
 	}
 
-	if err := helpers.CheckPassword(req.Password, user.Password); err != nil{
+	if err := helpers.CheckPassword(req.Password, user.Password); err != nil {
 		http.Error(w, "Incorrect password", http.StatusUnauthorized)
-		return 
+		return
 	}
 
 	accessToken, err := helpers.GenerateAccessToken(fmt.Sprint(user.ID), fmt.Sprint(user.Role), int(user.TokenVersion))
 	if err != nil {
 		http.Error(w, "Failed to create the token", http.StatusInternalServerError)
-		return 
+		return
 	}
 
 	refreshToken, err := helpers.GenerateRefreshToken(fmt.Sprint(user.ID), fmt.Sprint(user.Role), int(user.TokenVersion))
@@ -143,8 +149,8 @@ func LoginUser(w http.ResponseWriter, r *http.Request){
 	}
 
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"email": user.Email,
-		"access_token": accessToken,
+		"email":         user.Email,
+		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 	})
 }
