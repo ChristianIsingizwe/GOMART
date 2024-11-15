@@ -105,9 +105,11 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return 
 	}
 
 	validate := validator.New()
+	validate.RegisterValidation("strongpassword", helpers.StrongPassword)
 
 	var req types.LoginRequest
 
@@ -116,12 +118,15 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := validate.Struct(req)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			fmt.Fprintf(w, "Validation failed for field %s: %s\n", err.Field(), err.Tag())
+	if err := validate.Struct(req); err != nil {
+		if validationErrors, ok := err.(validator.ValidationErrors); ok{
+			for _, ve := range validationErrors{
+				fmt.Fprintf(w, "validation failed for field '%s' : %s\n", ve.Field(), ve.Tag())
+			}
+		} else{
+			http.Error(w, "Validation failed", http.StatusBadRequest)
 		}
-		return
+		return 
 	}
 
 	var user models.User
