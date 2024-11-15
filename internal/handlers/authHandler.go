@@ -39,11 +39,11 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var existingUser models.User
+	var existingUser models.User 
 
 	if err := database.DB.Where("email=?", req.Email).First(&existingUser).Error; err != nil {
 		http.Error(w, "User already exists", http.StatusConflict)
-		return
+		return 
 	}
 
 	hashedPassword, err := helpers.HashPassword(req.Password)
