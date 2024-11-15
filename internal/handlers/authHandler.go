@@ -12,6 +12,8 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+
+
 func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodPost{
@@ -98,9 +100,10 @@ func LoginUser(w http.ResponseWriter, r *http.Request){
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 	}
 
+	validate:= validator.New()
+
 
 	var req types.LoginRequest
-	var validate *validator.Validate
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request payloads", http.StatusBadRequest)
