@@ -54,12 +54,17 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	var existingUser models.User
 
-	if err := database.DB.Where("email=?", req.Email).First(&existingUser).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			http.Error(w, "Failed to check if a user exists", http.StatusInternalServerError)
-			return 
-		}
-	} else {
+	// if err := database.DB.Where("email=?", req.Email).First(&existingUser).Error; err != nil {
+	// 	if err == gorm.ErrRecordNotFound {
+	// 		http.Error(w, "Failed to check if a user exists", http.StatusInternalServerError)
+	// 		return 
+	// 	}
+	// } else {
+	// 	http.Error(w, "User already exists", http.StatusConflict)
+	// 	return
+	// }
+
+	if err := database.DB.Where("email=?", req.Email).First(&existingUser).Error; err != nil && err != gorm.ErrRecordNotFound{
 		http.Error(w, "User already exists", http.StatusConflict)
 		return
 	}
