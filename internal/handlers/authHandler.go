@@ -31,14 +31,6 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// err := validate.Struct(req)
-	// if err != nil {
-	// 	for _, err := range err.(validator.ValidationErrors) {
-	// 		fmt.Fprintf(w, "Validation failed for field '%s' : '%s\n'", err.Field(), err.Tag())
-	// 	}
-	// 	return
-	// }
-
 	if err := validate.Struct(req); err != nil{
 		validationErrors := make(map[string]string)
 		for _, ve := range err.(validator.ValidationErrors){
@@ -54,19 +46,17 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	var existingUser models.User
 
-	// if err := database.DB.Where("email=?", req.Email).First(&existingUser).Error; err != nil {
-	// 	if err == gorm.ErrRecordNotFound {
-	// 		http.Error(w, "Failed to check if a user exists", http.StatusInternalServerError)
-	// 		return 
-	// 	}
-	// } else {
+	// if err := database.DB.Where("email=?", req.Email).First(&existingUser).Error; err != nil && err != gorm.ErrRecordNotFound{
 	// 	http.Error(w, "User already exists", http.StatusConflict)
 	// 	return
 	// }
 
-	if err := database.DB.Where("email=?", req.Email).First(&existingUser).Error; err != nil && err != gorm.ErrRecordNotFound{
+	if err := database.DB.Where("email=?", req.Email).First(&existingUser).Error; err == nil {
 		http.Error(w, "User already exists", http.StatusConflict)
-		return
+		return 
+	} else if err != gorm.ErrRecordNotFound {
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return 
 	}
 
 	hashedPassword, err := helpers.HashPassword(req.Password)
